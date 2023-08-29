@@ -6,7 +6,7 @@ import streamlit as st
 import requests
 import json
 
-### local run command: streamlit run eco-mode.py 
+### local run command: streamlit run streamlit_app.py 
 ## resources:
 ## https://ourworldindata.org/travel-carbon-footprint
 
@@ -19,7 +19,7 @@ st.set_page_config(
 st.subheader("""Navigate greener ways to travel.""")
 
 distance_unit_selection = st.sidebar.radio(
-    "Unit of Distance",
+    "Distance Unit",
     ("Kilometres", "Miles")
 )
 api_distance_unit = "metric"
@@ -40,7 +40,7 @@ location_start = st.text_input(
 
 location_end = st.text_input(
     label='Where to?', 
-    placeholder='e.g. Seattle'
+    placeholder='e.g. Seattle, Climate Pledge Arena'
     )
 
 ## constants
@@ -118,8 +118,10 @@ if location_start and location_end:
 
 
     # display
-    st.markdown("Going from **" + start_address+"** to **"+end_address+'**')
+    st.markdown("Going from **_" + start_address+"_** -> **_"+end_address+'_**')
     st.metric(label='Distance', value=car_distance_text)
+    st.markdown("")
+    st.markdown("#### CO<sub>2</sub> Emissions (kg) by:", unsafe_allow_html=True)
     tab1, tab2 = st.tabs(["Transportation Modes", "Car Types"])
     with tab1:
         col1, col2, col3 = st.columns(3)
@@ -149,13 +151,32 @@ if location_start and location_end:
     with tab2:
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.metric(label='Gas', value=str(round(car_gas_co2_kilograms))+" kg")
+            st.metric(
+                label='Gas', 
+                value=str(round(car_gas_co2_kilograms))+" kg"
+                )
         with col2:
-            st.metric(label='Diesel', value=str(round(car_diesel_co2_kilograms))+" kg")
+            st.metric(
+                label='Diesel', 
+                value=str(round(car_diesel_co2_kilograms))+" kg",
+                delta=str(round((car_diesel_co2_kilograms/car_gas_co2_kilograms-1)*100))+" %",
+                delta_color="inverse"
+                )
         with col3:
-            st.metric(label='Electric', value=str(round(car_electric_co2_kilograms))+" kg")
+            st.metric(
+                label='Electric', 
+                value=str(round(car_electric_co2_kilograms))+" kg", 
+                delta=str(round((car_electric_co2_kilograms/car_gas_co2_kilograms-1)*100))+" %",
+                delta_color="inverse",
+                help="Emissions coming from electricity charge"
+                )
         with col4:
-            st.metric(label='Hybrid', value=str(round(car_hybrid_co2_kilograms))+" kg")
+            st.metric(
+                label='Hybrid', 
+                value=str(round(car_hybrid_co2_kilograms))+" kg",
+                delta=str(round((car_hybrid_co2_kilograms/car_gas_co2_kilograms-1)*100))+" %",
+                delta_color="inverse"
+                )
 
 
 ## metrics: distance/time, cost/time, 
